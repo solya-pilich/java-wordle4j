@@ -16,15 +16,13 @@ public class Wordle {
 
         try (PrintWriter log = new PrintWriter(new FileWriter("game.log", StandardCharsets.UTF_8, true))) {
 
-            try {
                 WordleDictionaryLoader loader = new WordleDictionaryLoader(log);
                 WordleDictionary dictionary;
                 try {
                     dictionary = loader.readWordsFromFile("words_ru.txt");
-                } catch (IOException e) {
-                    log.println("Ошибка загрузки словаря" + e.getMessage());
-                    e.printStackTrace(log);
-                    System.err.println("Не удалось загрузить словарь. Игра завершена");
+                } catch (EmptyDictionaryException e) {
+                    log.println("Ошибка загрузки слов" + e.getMessage());
+                    System.err.println("В словаре нет подходящих слов. Игра завершена");
                     return;
                 }
 
@@ -41,7 +39,7 @@ public class Wordle {
                             String help = game.getHelp();
                             System.out.println(help);
                             game.play(help);
-                        } catch (WordNotFound e) {
+                        } catch (WordNotFound | GameAlreadyFinishedException e) {
                             System.out.println(e.getMessage());
                             break;
                         }
@@ -50,18 +48,17 @@ public class Wordle {
                     } else if (!dictionary.containsWord(word)) {
                         System.out.println("Такого слова нет в нашем словаре :(");
                     } else {
-                        game.play(word);
+                        try {
+                            game.play(word);
+                        } catch (GameAlreadyFinishedException e) {
+                            System.out.println(e.getMessage());
+                            break;
+                        }
                     }
                 }
 
-            } catch (Exception e) {
-                log.println("Необработанное исключение " + e.getMessage());
-                e.printStackTrace(log);
-                System.err.println("Внутренняя ошибка. Игра завершена, попробуйте начать сначала.");
-            }
-
-        } catch (IOException e) {
-            System.err.println("Не удалось создать лог-файл" + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Критическая ошибка. Программа завершена" + e.getMessage());
             e.getStackTrace();
         }
     }

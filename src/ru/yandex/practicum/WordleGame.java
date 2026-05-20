@@ -8,6 +8,8 @@ import java.util.Set;
 
 public class WordleGame {
 
+    static final int WORD_LENGTH = 5;
+
     private String answer;
     private int steps;
     private WordleDictionary dictionary;
@@ -27,9 +29,9 @@ public class WordleGame {
         log.println("Игра началась. Загадано слово: " + answer);
     }
 
-    public void play(String wordOfPlayer) {
+    public void play(String wordOfPlayer) throws GameAlreadyFinishedException {
         if (steps <= 0) {
-            throw new IllegalStateException("Ходов не осталось. Игра завершена");
+            throw new GameAlreadyFinishedException("Ходов не осталось. Игра завершена");
         }
         steps--;
         if (wordOfPlayer.equals(answer)) {
@@ -57,21 +59,21 @@ public class WordleGame {
     public String getHint(String wordOfPlayer) {
         char[] answerWord = answer.toCharArray();
         char[] playerWord = wordOfPlayer.toCharArray();
-        char[] hint = new char[5];
+        char[] hint = new char[WORD_LENGTH];
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
             if (playerWord[i] == answerWord[i]) {
                 hint[i] = '+';
                 answerWord[i] = '#';
             }
         }
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
             if (hint[i] == '+') {
                 continue;
             }
             int index = -1;
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < WORD_LENGTH; j++) {
                 if (answerWord[j] == playerWord[i]) {
                     index = j;
                     break;
@@ -98,7 +100,7 @@ public class WordleGame {
     }
 
     public List<String> filterPossibleWords(String wordOfPlayer, String hint, List<String> possibleWords) {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
             if (hint.charAt(i) == '+') {
                 int finalI = i;
                 possibleWords.removeIf(word -> word.charAt(finalI) != wordOfPlayer.charAt(finalI));
@@ -106,7 +108,7 @@ public class WordleGame {
         }
 
         Set<Character> illegalSymbol = new HashSet<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
             if (hint.charAt(i) == '-') {
                 illegalSymbol.add(wordOfPlayer.charAt(i));
             }
@@ -120,7 +122,7 @@ public class WordleGame {
             return false;
         });
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < WORD_LENGTH; i++) {
             if (hint.charAt(i) == '^') {
                 char interestingSymbol = wordOfPlayer.charAt(i);
                 int finalI = i;

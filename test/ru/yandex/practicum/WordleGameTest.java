@@ -27,7 +27,7 @@ public class WordleGameTest {
     }
 
     @Test
-    void shouldCorrectlyFinishGameIfWordIsGuessed() {
+    void shouldCorrectlyFinishGameIfWordIsGuessed() throws GameAlreadyFinishedException {
         String word = game.getAnswer();
         game.play(word);
         assertTrue(dictionary.containsWord(word));
@@ -35,7 +35,7 @@ public class WordleGameTest {
     }
 
     @Test
-    void shouldCorrectlyCountStepsAndFinishGame() {
+    void shouldCorrectlyCountStepsAndFinishGame() throws GameAlreadyFinishedException {
         assertEquals(6, game.getSteps());
         game.play("арбуз");
         assertEquals(5, game.getSteps());

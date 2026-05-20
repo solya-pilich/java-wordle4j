@@ -18,7 +18,7 @@ public class WordleDictionaryLoader {
         this.log = log;
     }
 
-    public WordleDictionary readWordsFromFile(String fileName) throws IOException {
+    public WordleDictionary readWordsFromFile(String fileName) throws IOException, EmptyDictionaryException {
         List<String> wordList = new ArrayList<>();
         Path path = Paths.get(fileName);
         try (BufferedReader br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
@@ -30,10 +30,13 @@ public class WordleDictionaryLoader {
                     wordList.add(word);
                 }
             }
+        } catch (IOException e) {
+            log.println("Ошибка чтения файла " + e.getMessage());
+            throw new DictionaryLoadException("Не удалось загрузить словарь", e);
         }
         if (wordList.isEmpty()) {
             log.println("Не удалось создать словарь. Загружено слов: " + wordList.size());
-            throw new IOException("Словарь пуст");
+            throw new EmptyDictionaryException("Словарь не содержит слов длинной 5 букв");
         }
         WordleDictionary wordleDictionary = new WordleDictionary(wordList);
         log.println("Словарь успешно создан. Загружено слов: " + wordList.size());

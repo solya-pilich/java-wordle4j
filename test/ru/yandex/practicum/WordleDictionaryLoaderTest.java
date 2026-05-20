@@ -24,7 +24,7 @@ public class WordleDictionaryLoaderTest {
     Path tempDir;
 
     @Test
-    void shouldReturnCorrectWords() throws IOException {
+    void shouldReturnCorrectWords() throws IOException, EmptyDictionaryException {
         Path file = tempDir.resolve("test.txt");
         try (FileWriter writer = new FileWriter(file.toFile())) {
             writer.write("кошка\n");
@@ -49,13 +49,9 @@ public class WordleDictionaryLoaderTest {
     @Test
     void shouldReturnExceptionWithEmptyFile() throws IOException {
         Path file = tempDir.resolve("empty.txt");
-        try {
-            WordleDictionaryLoader loader = new WordleDictionaryLoader(testLog);
-            WordleDictionary dictionary = loader.readWordsFromFile(file.toString());
-            fail("Expected IOException");
-        } catch (IOException e) {
-            assertNotNull(e.getMessage());
-        }
+        WordleDictionaryLoader loader = new WordleDictionaryLoader(testLog);
+        DictionaryLoadException exception = assertThrows(DictionaryLoadException.class, () -> loader.readWordsFromFile(file.toString()));
+        assertNotNull(exception.getMessage());
     }
 
     @Test
@@ -68,11 +64,9 @@ public class WordleDictionaryLoaderTest {
             writer.write("     \n");
 
             WordleDictionaryLoader loader = new WordleDictionaryLoader(testLog);
-            WordleDictionary dictionary = loader.readWordsFromFile(file.toString());
-            fail("Expected IOException");
-
-        } catch (IOException e) {
-            assertNotNull(e.getMessage());
+            EmptyDictionaryException exception = assertThrows(EmptyDictionaryException.class, ()
+                    -> loader.readWordsFromFile(file.toString()));
+            assertNotNull(exception.getMessage());
         }
     }
 }
